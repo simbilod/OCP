@@ -49,6 +49,20 @@ execute_process(
 )
 
 get_target_property( LIBCLANG_PATH libclang IMPORTED_LOCATION_RELEASE )
+
+execute_process(
+    COMMAND clang -print-resource-dir
+    OUTPUT_VARIABLE CLANG_RESOURCE_DIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+)
+if(CLANG_RESOURCE_DIR)
+    set(CLANG_INTERNAL_INCLUDE_DIR "${CLANG_RESOURCE_DIR}/include")
+    message(STATUS "Found Clang resource internal include: ${CLANG_INTERNAL_INCLUDE_DIR}")
+else()
+    set(CLANG_INTERNAL_INCLUDE_DIR "${CLANG_INSTALL_PREFIX}/lib/clang/${LLVM_VERSION_MAJOR}/include")
+    message(STATUS "Using fallback Clang internal include: ${CLANG_INTERNAL_INCLUDE_DIR}")
+endif()
 get_target_property( VTK_INCLUDE_DIR VTK::CommonCore INTERFACE_INCLUDE_DIRECTORIES )
 
 # for some reason I get multiple generator expressions
@@ -90,6 +104,8 @@ else()
     list( APPEND CXX_INCLUDES -i ${CMAKE_SOURCE_DIR}/extern/include/ )
 endif()
 
+file( COPY ${CMAKE_SOURCE_DIR}/templates DESTINATION ${CMAKE_BINARY_DIR} )
+
 if(PLATFORM)
     message( STATUS "Requested platform: ${PLATFORM}")
 else()
@@ -104,6 +120,13 @@ else()
     endif()
 endif()
 
+set(BINDGEN_INCLUDES)
+foreach(dir IN LISTS VTK_INCLUDE_DIR OPENGL_INCLUDE_DIRS RapidJSON_INCLUDE_DIRS)
+    if(dir)
+        list(APPEND BINDGEN_INCLUDES -i ${dir})
+    endif()
+endforeach()
+
 set(ENV{PYTHONPATH} ${CMAKE_SOURCE_DIR}/pywrap )
 
 add_custom_command(
@@ -114,10 +137,8 @@ add_custom_command(
         -m bindgen
         -n ${N_PROC}
         -l ${LIBCLANG_PATH}
-        -i ${VTK_INCLUDE_DIR}/
-        -i ${OPENGL_INCLUDE_DIRS}
-        -i ${RapidJSON_INCLUDE_DIRS}
-        -i ${CLANG_INSTALL_PREFIX}/lib/clang/${LLVM_VERSION_MAJOR}/include/
+        ${BINDGEN_INCLUDES}
+        -i ${CLANG_INTERNAL_INCLUDE_DIR}/
         -p ${CMAKE_SOURCE_DIR}
         ${CXX_INCLUDES}
         all ${CMAKE_SOURCE_DIR}/ocp.toml ${PLATFORM}
