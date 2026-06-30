@@ -140,7 +140,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        py_min: [10, 11, 12, 13]
+        py_min: [10, 11, 12, 13, "14t"]
     
     env:
       OCP_src: OCP_src_${{ inputs.platform }}
