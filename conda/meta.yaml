@@ -21,9 +21,15 @@ build:
 requirements:
   build:
     - python {{ environ.get('PYTHON_VERSION') }}
+    {% if environ.get('FREETHREADING', '0') == '1' %}
+    - python-freethreading
+    {% endif %}
     - occt={{ OCCT_VER }}=all*
   run:
     - python {{ environ.get('PYTHON_VERSION') }}
+    {% if environ.get('FREETHREADING', '0') == '1' %}
+    - python-freethreading
+    {% endif %}
     - occt={{ OCCT_VER }}=all*
 
 test:

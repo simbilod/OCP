@@ -154,6 +154,16 @@ jobs:
         with:
           submodules: true
 
+      - name: Parse Python Version
+        shell: bash
+        run: |
+          if [[ "${PYTHON_VERSION}" == *"t" ]]; then
+            echo "PYTHON_VERSION=${PYTHON_VERSION%t}" >> $GITHUB_ENV
+            echo "FREETHREADING=1" >> $GITHUB_ENV
+          else
+            echo "FREETHREADING=0" >> $GITHUB_ENV
+          fi
+
       # rely on source artifact??
       # - name: Restore OCP_src cache
       #   id: cache-ocp-src-restore
@@ -189,6 +199,7 @@ jobs:
           init-shell: bash
           create-args: >-
             python=${{ env.PYTHON_VERSION }}
+            ${{ env.FREETHREADING == '1' && 'python-freethreading' || '' }}
             conda-devenv
             mamba
 
