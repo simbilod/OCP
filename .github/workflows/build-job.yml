@@ -160,8 +160,10 @@ jobs:
           if [[ "${PYTHON_VERSION}" == *"t" ]]; then
             echo "PYTHON_VERSION=${PYTHON_VERSION%t}" >> $GITHUB_ENV
             echo "FREETHREADING=1" >> $GITHUB_ENV
+            echo "CONDA_ARGS=python=${PYTHON_VERSION%t} python-freethreading conda-devenv mamba" >> $GITHUB_ENV
           else
             echo "FREETHREADING=0" >> $GITHUB_ENV
+            echo "CONDA_ARGS=python=${PYTHON_VERSION} conda-devenv mamba" >> $GITHUB_ENV
           fi
 
       # rely on source artifact??
@@ -197,15 +199,7 @@ jobs:
           environment-name: placeholder
           # Create a minimal environment with mamba-devenv
           init-shell: bash
-
-      - name: Install dependencies in placeholder
-        shell: bash -l {0}
-        run: |
-          if [[ "$FREETHREADING" == "1" ]]; then
-            micromamba install -y -c conda-forge python=${PYTHON_VERSION} python-freethreading conda-devenv mamba
-          else
-            micromamba install -y -c conda-forge python=${PYTHON_VERSION} conda-devenv mamba
-          fi
+          create-args: ${{ env.CONDA_ARGS }}
 
       - name: Prepare conda environment
         shell: bash -l {0}
