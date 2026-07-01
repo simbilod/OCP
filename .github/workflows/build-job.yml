@@ -200,11 +200,7 @@ jobs:
       - name: Create placeholder environment
         shell: bash -l {0}
         run: |
-          if [[ "$FREETHREADING" == "1" ]]; then
-            micromamba create -n placeholder -y -c conda-forge python=${PYTHON_VERSION} python-freethreading conda-devenv mamba
-          else
-            micromamba create -n placeholder -y -c conda-forge python=${PYTHON_VERSION} conda-devenv mamba
-          fi
+          micromamba create -n placeholder -y -c conda-forge python=3.13 conda-devenv mamba
 
       - name: Prepare conda environment
         shell: bash -l {0}
