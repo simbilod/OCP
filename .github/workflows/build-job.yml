@@ -197,11 +197,15 @@ jobs:
           environment-name: placeholder
           # Create a minimal environment with mamba-devenv
           init-shell: bash
-          create-args: >-
-            python=${{ env.PYTHON_VERSION }}
-            ${{ env.FREETHREADING == '1' && 'python-freethreading' || '' }}
-            conda-devenv
-            mamba
+
+      - name: Install dependencies in placeholder
+        shell: bash -l {0}
+        run: |
+          if [[ "$FREETHREADING" == "1" ]]; then
+            micromamba install -y -c conda-forge python=${PYTHON_VERSION} python-freethreading conda-devenv mamba
+          else
+            micromamba install -y -c conda-forge python=${PYTHON_VERSION} conda-devenv mamba
+          fi
 
       - name: Prepare conda environment
         shell: bash -l {0}
