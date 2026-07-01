@@ -194,12 +194,17 @@ jobs:
         env:
           ACTIONS_STEP_DEBUG: true
         with:
-          # micromamba-version: '1.5.8-0'
-          # REMOVE: environment-file: environment.devenv.yml
           environment-name: placeholder
-          # Create a minimal environment with mamba-devenv
           init-shell: bash
-          create-args: ${{ env.CONDA_ARGS }}
+
+      - name: Create placeholder environment
+        shell: bash -l {0}
+        run: |
+          if [[ "$FREETHREADING" == "1" ]]; then
+            micromamba create -n placeholder -y -c conda-forge python=${PYTHON_VERSION} python-freethreading conda-devenv mamba
+          else
+            micromamba create -n placeholder -y -c conda-forge python=${PYTHON_VERSION} conda-devenv mamba
+          fi
 
       - name: Prepare conda environment
         shell: bash -l {0}
